@@ -43,19 +43,63 @@
  *   const byRating = createSorter("rating", "desc");
  *   [{ rating: 3 }, { rating: 5 }].sort(byRating)
  *   // => [{ rating: 5 }, { rating: 3 }]
- */
-export function createFilter(field, operator, value) {
-  // Your code here
-}
+ */export function createFilter(field, operator, value) {
+		return (obj) => {
+			const v = obj?.[field];
 
-export function createSorter(field, order = "asc") {
-  // Your code here
-}
+			switch (operator) {
+				case '>':
+					return v > value;
+				case '<':
+					return v < value;
+				case '>=':
+					return v >= value;
+				case '<=':
+					return v <= value;
+				case '===':
+					return v === value;
+				default:
+					return false;
+			}
+		};
+ }
 
-export function createMapper(fields) {
-  // Your code here
-}
+ export function createSorter(field, order = 'asc') {
+		return (a, b) => {
+			const v1 = a?.[field];
+			const v2 = b?.[field];
 
-export function applyOperations(data, ...operations) {
-  // Your code here
-}
+			if (v1 === v2) return 0;
+
+			const cmp = v1 > v2 ? 1 : -1;
+			return order === 'desc' ? -cmp : cmp;
+		};
+ }
+
+ export function createMapper(fields) {
+		return (obj) => {
+			const result = {};
+			if (!Array.isArray(fields)) return result;
+
+			for (const f of fields) {
+				if (f in obj) result[f] = obj[f];
+			}
+
+			return result;
+		};
+ }
+
+ export function applyOperations(data, ...operations) {
+		if (!Array.isArray(data)) return [];
+
+		let result = data;
+
+		for (const op of operations) {
+			if (typeof op === 'function') {
+				const next = op(result);
+				result = Array.isArray(next) ? next : result;
+			}
+		}
+
+		return result;
+ }

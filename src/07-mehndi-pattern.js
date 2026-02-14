@@ -51,23 +51,64 @@
  *   flattenArray([1, [2, [3]]]) // => [1, 2, 3]
  *   isPalindrome("madam")     // => true
  *   generatePattern(3)        // => ["*", "**", "***", "**", "*"]
- */
-export function repeatChar(char, n) {
-  // Your code here
-}
+ */export function repeatChar(char, n) {
+		if (typeof char !== 'string' || char.length === 0) return '';
+		if (n <= 0) return '';
+		return char + repeatChar(char, n - 1);
+ }
 
-export function sumNestedArray(arr) {
-  // Your code here
-}
+ export function sumNestedArray(arr) {
+		if (!Array.isArray(arr)) return 0;
+		if (arr.length === 0) return 0;
 
-export function flattenArray(arr) {
-  // Your code here
-}
+		const [first, ...rest] = arr;
 
-export function isPalindrome(str) {
-  // Your code here
-}
+		let value = 0;
+		if (typeof first === 'number' && Number.isFinite(first)) {
+			value = first;
+		} else if (Array.isArray(first)) {
+			value = sumNestedArray(first);
+		}
 
-export function generatePattern(n) {
-  // Your code here
-}
+		return value + sumNestedArray(rest);
+ }
+
+ export function flattenArray(arr) {
+		if (!Array.isArray(arr)) return [];
+		if (arr.length === 0) return [];
+
+		const [first, ...rest] = arr;
+
+		const flatFirst = Array.isArray(first) ? flattenArray(first) : [first];
+
+		return [...flatFirst, ...flattenArray(rest)];
+ }
+
+ export function isPalindrome(str) {
+		if (typeof str !== 'string') return false;
+
+		const s = str.toLowerCase();
+
+		const helper = (left, right) => {
+			if (left >= right) return true;
+			if (s[left] !== s[right]) return false;
+			return helper(left + 1, right - 1);
+		};
+
+		return helper(0, s.length - 1);
+ }
+
+ export function generatePattern(n) {
+		if (!Number.isInteger(n) || n <= 0) return [];
+
+		const buildUp = (k) => {
+			if (k === 1) return ['*'];
+			const prev = buildUp(k - 1);
+			return [...prev, '*'.repeat(k)];
+		};
+
+		const up = buildUp(n);
+		const down = up.slice(0, -1).reverse();
+
+		return [...up, ...down];
+ }

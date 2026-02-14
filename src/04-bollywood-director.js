@@ -43,15 +43,51 @@
  *
  *   const pricer = createTicketPricer(200);
  *   pricer("gold", true)  // => 200 * 1.5 * 1.3 = 390
- */
-export function createDialogueWriter(genre) {
-  // Your code here
-}
+ */export function createDialogueWriter(genre) {
+		const templates = {
+			action: (h, v) => `${h} says: 'Tujhe toh main dekh lunga, ${v}!'`,
+			romance: (h, v) => `${h} whispers: '${v}, tum mere liye sab kuch ho'`,
+			comedy: (h, v) => `${h} laughs: '${v} bhai, kya kar rahe ho yaar!'`,
+			drama: (h, v) => `${h} cries: '${v}, tune mera sab kuch cheen liya!'`,
+		};
 
-export function createTicketPricer(basePrice) {
-  // Your code here
-}
+		if (!templates[genre]) return null;
 
-export function createRatingCalculator(weights) {
-  // Your code here
-}
+		return (hero, villain) => {
+			if (!hero || !villain) return '...';
+			return templates[genre](hero, villain);
+		};
+ }
+
+ export function createTicketPricer(basePrice) {
+		if (!Number.isFinite(basePrice) || basePrice <= 0) return null;
+
+		const mult = { silver: 1, gold: 1.5, platinum: 2 };
+
+		return (seatType, isWeekend = false) => {
+			if (!(seatType in mult)) return null;
+
+			let price = basePrice * mult[seatType];
+			if (isWeekend) price *= 1.3;
+
+			return Math.round(price);
+		};
+ }
+
+ export function createRatingCalculator(weights) {
+		if (!weights || typeof weights !== 'object') return null;
+
+		return (scores) => {
+			if (!scores || typeof scores !== 'object') return 0;
+
+			let sum = 0;
+
+			for (const key in weights) {
+				if (key in scores) {
+					sum += scores[key] * weights[key];
+				}
+			}
+
+			return Math.round(sum * 10) / 10;
+		};
+ }
